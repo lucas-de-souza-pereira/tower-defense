@@ -1,3 +1,4 @@
+#include "view/difficultyview.hpp"
 #include "view/gameview.hpp"
 #include "view/menuview.hpp"
 #include "view/gameplayview.hpp"
@@ -28,21 +29,34 @@ void GameView::processEvents() {
         if (event.type == sf::Event::Closed)
             window.close();
 
-        if (state == ViewState::MENU && event.type == sf::Event::MouseButtonPressed) {
-            GameState result = inputHandler.handleMenuClick({event.mouseButton.x, event.mouseButton.y}, window);
+        if (event.type == sf::Event::MouseButtonPressed) {
+            sf::Vector2i mousePos(event.mouseButton.x, event.mouseButton.y);
+            GameState result = GameState::MENU;
 
+            switch (state) {
+                case ViewState::MENU:
+                    result = inputHandler.handleMenuClick(mousePos, window);
+                    break;
+                case ViewState::DIFFICULTY:
+                    result = inputHandler.handleDifficultyClick(mousePos, window);
+                    break;
+                case ViewState::GAMEPLAY:
+                    result = inputHandler.handleGameplayClick(mousePos, window);
+                    break;
+                case ViewState::SCORE:
+                    result = inputHandler.handleScoreClick(mousePos, window);
+                    break;
+            }
 
-            // Convertir le GameState en ViewState
+            // mise à jour de l’état courant
             switch (result) {
                 case GameState::GAME:   state = ViewState::GAMEPLAY; break;
+                case GameState::DIFFICULTY:   state = ViewState::DIFFICULTY; break;
                 case GameState::SCORE:  state = ViewState::SCORE; break;
+                case GameState::MENU:   state = ViewState::MENU; break;
                 case GameState::QUIT:   window.close(); break;
-                default: break;
             }
         }
-
-
-
     }
 }
 
@@ -52,6 +66,9 @@ void GameView::render() {
     switch (state) {
         case ViewState::MENU:
             renderMenu();
+            break;
+        case ViewState::DIFFICULTY:
+            renderDifficulty();
             break;
         case ViewState::GAMEPLAY:
             renderGameplay();
@@ -64,5 +81,6 @@ void GameView::render() {
 }
 
 void GameView::renderMenu()      { drawMenu(window); }
+void GameView::renderDifficulty()     { drawDifficulty(window); }
 void GameView::renderGameplay()  { drawGameplay(window); }
 void GameView::renderScore()     { drawScore(window); }

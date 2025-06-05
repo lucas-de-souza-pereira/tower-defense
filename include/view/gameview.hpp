@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-enum class ViewState { MENU, GAMEPLAY, SCORE };
+enum class ViewState { MENU, GAMEPLAY, DIFFICULTY, SCORE };
 
 class GameView {
 public:
@@ -17,5 +17,6 @@ private:
 
     void renderMenu();
     void renderGameplay();
+    void renderDifficulty();
     void renderScore();
 };

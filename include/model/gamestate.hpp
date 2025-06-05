@@ -3,6 +3,7 @@
 enum class GameState {
     MENU,
     GAME,
+    DIFFICULTY,
     SCORE,
     QUIT
 };

@@ -10,9 +10,11 @@ add_executable(towerdefense
     src/model/gamelogic.cpp
     src/model/gamestate.cpp
     src/model/inputhandler.cpp
+    src/view/difficultyview.cpp
+    src/view/gameplayview.cpp
     src/view/gameview.cpp
     src/view/menuview.cpp
-    src/view/gameplayview.cpp
+    
     src/view/scoreview.cpp
 )
 
