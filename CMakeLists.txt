@@ -7,14 +7,14 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(towerdefense
     src/main.cpp
     src/controller/gamecontroller.cpp
+    src/controller/gamestate.cpp
+    src/controller/inputhandler.cpp
     src/model/gamelogic.cpp
-    src/model/gamestate.cpp
-    src/model/inputhandler.cpp
+    src/model/scoreloader.cpp
     src/view/difficultyview.cpp
     src/view/gameplayview.cpp
     src/view/gameview.cpp
     src/view/menuview.cpp
-    
     src/view/scoreview.cpp
 )
 

@@ -5,6 +5,11 @@ enum class ViewState { MENU, GAMEPLAY, DIFFICULTY, SCORE };
 
 class GameView {
 public:
+
+    static constexpr unsigned int WINDOW_WIDTH = 1000;
+    static constexpr unsigned int WINDOW_HEIGHT = 900;
+
+
     GameView();
     void run();  
 

@@ -1,13 +1,22 @@
 #include "view/scoreview.hpp"
+#include "model/scoreloader.hpp"
+
 #include <SFML/Graphics.hpp>
+
+
 
 void drawScore(sf::RenderWindow& window) {
     sf::Font font;
-    font.loadFromFile("../assets/arial.ttf");
+    font.loadFromFile("../assets/police/arial.ttf");
 
-    sf::Text text("Score", font, 40);
-    text.setFillColor(sf::Color::White);
-    text.setPosition(300, 200);
+    auto scores = loadScores("../assets/data/scores.json");
 
-    window.draw(text);
+    float y = 150.f;
+    for (const auto& entry : scores) {
+        sf::Text line(entry.name + ": " + std::to_string(entry.score), font, 30);
+        line.setPosition(300.f, y);
+        line.setFillColor(sf::Color::White);
+        window.draw(line);
+        y += 50.f;
+    }
 }

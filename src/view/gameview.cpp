@@ -4,11 +4,15 @@
 #include "view/gameplayview.hpp"
 #include "view/scoreview.hpp"
 
+
+#include "controller/inputhandler.hpp"
+#include "controller/gamestate.hpp"
+
 #include <iostream>
 
 GameView::GameView()
-    : window(sf::VideoMode(800, 600), "Tower Defense"), state(ViewState::MENU) {
-    window.setPosition({400, 50});
+    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Tower Defense"), state(ViewState::MENU) {
+    window.setPosition({50, 50});
 }
 
 void GameView::run() {
@@ -18,8 +22,6 @@ void GameView::run() {
     }
 }
 
-#include "model/inputhandler.hpp"
-#include "model/gamestate.hpp"
 
 InputHandler inputHandler;
 

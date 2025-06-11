@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "model/gamestate.hpp"
+#include "controller/gamestate.hpp"
 
 class InputHandler {
 public:
