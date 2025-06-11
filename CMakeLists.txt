@@ -11,6 +11,7 @@ find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 set(SOURCES
     main.cpp
     src/model/path.cpp
+    src/model/enemy.cpp
     src/controller/enemycontroller.cpp
     src/view/enemyview.cpp
     src/controller/towercontroller.cpp  
