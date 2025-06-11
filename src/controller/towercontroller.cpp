@@ -11,7 +11,6 @@ void TowerController::update(float deltaTime, std::vector<Enemy>& enemies) {
             tower.cooldown -= deltaTime;
             continue;
         }
-
         Enemy* target = nullptr;
         float minDist = tower.range;
         for (auto& enemy : enemies) {
@@ -23,13 +22,13 @@ void TowerController::update(float deltaTime, std::vector<Enemy>& enemies) {
                 target = &enemy;
             }
         }
-
         if (target) {
             target->takeDamage(tower.damage);
             tower.cooldown = 1.f / tower.fireRate;
         }
     }
 }
+
 
 const std::vector<TowerController::Tower>& TowerController::getTowers() const {
     return towers;

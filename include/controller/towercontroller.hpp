@@ -13,11 +13,11 @@ public:
     struct Tower {
         sf::Vector2f position;
         float range = 150.f;
-        float fireRate = 1.f;
+        float fireRate = 0.5f; 
         float cooldown = 0.f;
         int damage = 10;
         bool selected = false;
-        Tower(const sf::Vector2f& pos) : position(pos), range(150.f), fireRate(1.f), cooldown(0.f), damage(10), selected(false) {} 
+        Tower(const sf::Vector2f& pos) : position(pos), range(150.f), fireRate(0.5f), cooldown(0.f), damage(10), selected(false) {}
     };
 
     std::vector<Tower> towers;

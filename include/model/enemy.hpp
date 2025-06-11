@@ -4,7 +4,7 @@
 
 class Enemy {
 public:
-    Enemy(const std::vector<sf::Vector2f>& path, int health = 100, float speed = 100.f);
+    Enemy(const std::vector<sf::Vector2f>& path, int health = 10, float speed = 100.f);
     void update(float dt);
     sf::Vector2f getPosition() const;
     int getHealth() const;
