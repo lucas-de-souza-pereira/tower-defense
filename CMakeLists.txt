@@ -13,6 +13,8 @@ set(SOURCES
     src/model/path.cpp
     src/controller/enemycontroller.cpp
     src/view/enemyview.cpp
+    src/controller/towercontroller.cpp  
+    src/view/towerview.cpp 
 )
 
 add_executable(TowerDefense ${SOURCES})

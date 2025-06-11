@@ -1,17 +1,29 @@
 #include <SFML/Graphics.hpp>
 #include "controller/enemycontroller.hpp"
 #include "view/enemyview.hpp"
+#include "controller/towercontroller.hpp"
+#include "view/towerview.hpp"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Tower Defense - Debug View");
+    sf::RenderWindow window(sf::VideoMode(1200, 800), "Tower Defense - Debug View");
 
-    // Définition du chemin (path) par des points
+    // Chemin des ennemis
     std::vector<sf::Vector2f> path = {
-        {100, 100},{300, 100},{300,175},{500, 175},{500,100},{700, 100}, {700, 500}, {100, 500}, {100, 800}
+        {400, 300}, {410, 300}, {410, 310}, {390, 310}, {390, 290}, {430, 290},
+        {430, 330}, {370, 330}, {370, 270}, {470, 270}, {470, 370}, {330, 370},
+        {330, 230}, {510, 230}, {510, 410}, {290, 410}, {290, 190}, {550, 190},
+        {550, 450}, {250, 450}, {250, 150}, {590, 150}, {590, 490}, {210, 490},
+        {210, 110}, {630, 110}, {630, 530}, {170, 530}, {170, 70}, {670, 70},
+        {670, 570}, {130, 570}, {130, 30}, {710, 30}
     };
 
-    EnemyController controller(path);
-    EnemyView view(window);
+    // Initialisation des contrôleurs
+    EnemyController enemyController(path);
+    TowerController towerController;
+
+    // Initialisation des vues
+    EnemyView enemyView(window);
+    TowerView towerView(window);
 
     sf::Clock clock;
     float spawnTimer = 0.f;
@@ -19,23 +31,34 @@ int main() {
     while(window.isOpen()) {
         float deltaTime = clock.restart().asSeconds();
 
+        // Gestion des événements
         sf::Event event;
         while(window.pollEvent(event)) {
-            if(event.type == sf::Event::Closed)
+            if(event.type == sf::Event::Closed) {
                 window.close();
+            }
+            if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                const sf::Vector2f mousePos = window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y});
+                towerController.addTower(mousePos);
+            }
         }
 
+        // Spawn automatique d'ennemis
         spawnTimer += deltaTime;
         if(spawnTimer > 1.0f) {
-            controller.spawnEnemy();
+            enemyController.spawnEnemy();
             spawnTimer = 0.f;
         }
 
-        controller.updateEnemies(deltaTime);
+        // Mise à jour de la logique
+        enemyController.updateEnemies(deltaTime);
+        towerController.update(deltaTime);
 
+        // Rendu
         window.clear(sf::Color::White);
-        view.drawPath(controller.getPath());
-        view.draw(controller.getEnemyPositions());
+        enemyView.drawPath(enemyController.getPath());
+        enemyView.draw(enemyController.getEnemyPositions());
+        towerView.draw(towerController.getTowers());
         window.display();
     }
 

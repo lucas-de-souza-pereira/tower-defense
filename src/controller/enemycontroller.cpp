@@ -20,7 +20,7 @@ void EnemyController::updateEnemies(float deltaTime) {
         sf::Vector2f direction = target - enemy.position;
         float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
         
-        if(distance > 2.0f) { // Marge de 2 pixels pour éviter les oscillations
+        if(distance > 3.0f) { 
             direction /= distance;
             enemy.position += direction * speed * deltaTime;
         } else {

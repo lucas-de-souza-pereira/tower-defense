@@ -4,10 +4,12 @@ EnemyView::EnemyView(sf::RenderWindow& win) : window(win) {}
 
 void EnemyView::draw(const std::vector<sf::Vector2f>& enemyPositions) {
     for(const auto& pos : enemyPositions) {
-        sf::RectangleShape rect(sf::Vector2f(20, 20));
-        rect.setFillColor(sf::Color::Red);
-        rect.setPosition(pos);
-        window.draw(rect);
+        sf::RectangleShape square;
+        square.setSize(sf::Vector2f(20, 20)); 
+        square.setOrigin(10, 10); 
+        square.setFillColor(sf::Color::Red);
+        square.setPosition(pos);
+        window.draw(square);
     }
 }
 
