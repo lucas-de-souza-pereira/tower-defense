@@ -5,7 +5,7 @@
 #include "model/enemy.hpp"
 #include "view/enemyview.hpp"
 
-int main() {
+int oldMain() {
     sf::RenderWindow window(sf::VideoMode(1200, 800), "Tower Defense - Debug View");
 
     std::vector<sf::Vector2f> path = { {430, 330}, {370, 330}, {370, 270}, {470, 270}, {470, 370}, {330, 370},
