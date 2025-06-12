@@ -11,7 +11,7 @@ private:
 
     std::vector<EnemyData> enemies;
     std::vector<sf::Vector2f> pathPoints;
-    float speed = 120.0f;
+    float speed = 100.0f;
 
 public:
     EnemyController(const std::vector<sf::Vector2f>& path);
