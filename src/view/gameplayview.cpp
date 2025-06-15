@@ -33,9 +33,11 @@ void drawGameplay(sf::RenderWindow& window) {
         while(window.pollEvent(event)) {
             if(event.type == sf::Event::Closed)
                 window.close();
-            if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
-                sf::Vector2f pos = window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y});
-                towerController.addTower(pos);
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+                // Tenter d'ajouter une tour à la position cliquée
+                towerController.addTower(worldPos);
             }
         }
 
@@ -62,5 +64,24 @@ void drawGameplay(sf::RenderWindow& window) {
         enemyView.draw(enemies);
         towerView.draw(towerController.getTowers());
         window.display();
+    }
+}
+
+void drawGrid(sf::RenderWindow& window, int width, int height) {
+    sf::RectangleShape line;
+    line.setFillColor(sf::Color(100, 100, 100, 100)); // gris transparent
+
+    // lignes verticales
+    for (int x = 0; x <= width; x += Grid::CELL_SIZE) {
+        line.setSize(sf::Vector2f(1.f, static_cast<float>(height)));
+        line.setPosition(static_cast<float>(x), 0.f);
+        window.draw(line);
+    }
+
+    // lignes horizontales
+    for (int y = 0; y <= height; y += Grid::CELL_SIZE) {
+        line.setSize(sf::Vector2f(static_cast<float>(width), 1.f));
+        line.setPosition(0.f, static_cast<float>(y));
+        window.draw(line);
     }
 }

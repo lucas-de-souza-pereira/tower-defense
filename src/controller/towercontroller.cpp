@@ -2,7 +2,18 @@
 #include <cmath>
 
 void TowerController::addTower(const sf::Vector2f& pos) {
-    towers.push_back(Tower{pos});
+    // Snapper la position à la grille
+    sf::Vector2f snappedPos = Grid::snapToGrid(pos);
+
+    // Vérifier si une tour est déjà à cette position
+    for (const auto& tower : towers) {
+        if (tower.position == snappedPos) {
+            // Tour déjà présente, ne rien faire
+            return;
+        }
+    }
+
+    towers.push_back(Tower{snappedPos});
 }
 
 void TowerController::update(float deltaTime, std::vector<Enemy>& enemies) {
@@ -28,7 +39,6 @@ void TowerController::update(float deltaTime, std::vector<Enemy>& enemies) {
         }
     }
 }
-
 
 const std::vector<TowerController::Tower>& TowerController::getTowers() const {
     return towers;
