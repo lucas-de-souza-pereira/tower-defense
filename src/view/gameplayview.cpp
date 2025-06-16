@@ -17,19 +17,19 @@
 GameState drawGameplay(sf::RenderWindow& window) {
     // Configuration initiale
     std::vector<sf::Vector2f> path = { 
-    {100, 100},   // Départ en haut à gauche (coin extérieur)
-    {500, 100},   // Coin supérieur droit
-    {500, 500},   // Coin inférieur droit
-    {100, 500},   // Coin inférieur gauche
-    {100, 180},   // Deuxième boucle, coin haut-gauche
-    {420, 180},   // Coin haut-droit
-    {420, 420},   // Coin bas-droit
-    {180, 420},   // Coin bas-gauche
-    {180, 260},   // Troisième boucle, coin haut-gauche
-    {340, 260},   // Coin haut-droit
-    {340, 340},   // Coin bas-droit
-    {260, 340},   // Coin bas-gauche
-    {260, 300},   // Centre (optionnel)
+    {100, 100},   
+    {500, 100},   
+    {500, 500},   
+    {100, 500},   
+    {100, 180},   
+    {420, 180},   
+    {420, 420},   
+    {180, 420},   
+    {180, 260},   
+    {340, 260},   
+    {340, 340},   
+    {260, 340},   
+    {260, 300},   
     {300, 300}  
     };
 
@@ -42,13 +42,21 @@ GameState drawGameplay(sf::RenderWindow& window) {
     // Éléments de jeu
     std::vector<Enemy> enemies;
     sf::Clock clock;
+    int playerLives = 3;
+    int currentWave = 1;
+    const int maxWaves = 10;
+    int enemiesPerWave = 3; 
+    int enemiesSpawned = 0;
+    int enemiesDefeated = 0;
+    bool waveInProgress = true;
+    float spawnInterval = 1.0f; 
     float spawnTimer = 0.f;
-    int playerLives = 10;
+    int towersAvailable = 1;
     sf::Vector2f currentTowerPos;
 
     // UI
     sf::Font font;
-    bool fontLoaded = font.loadFromFile("arial.ttf");
+    bool fontLoaded = font.loadFromFile("../assets/police/arial.ttf");
     if (!fontLoaded) {
         std::cerr << "Erreur de chargement de la police !" << std::endl;
         // On continue quand même, le texte sera affiché sans police personnalisée
@@ -89,21 +97,29 @@ GameState drawGameplay(sf::RenderWindow& window) {
                 );
                 sf::Vector2f snappedPos = grid.snapToGrid(mousePos);
 
-                if (grid.isCellValid(snappedPos)) {
+                if (grid.isCellValid(snappedPos) && towersAvailable > 0) {
                     towerController.addTower(snappedPos);
-                    grid.occupyCell(snappedPos);  // Marque la cellule comme occupée
-                }
-                else {
-                    std::cout << "Placement interdit : cellule occupée ou sur le chemin." << std::endl;
+                    grid.occupyCell(snappedPos);
+                    towersAvailable--; 
+                } else if (towersAvailable <= 0) {
+                    std::cout << "Plus de tours à poser pour le moment !" << std::endl;
                 }
             }
         }
+        // Système de vagues
+        if (waveInProgress) {
+            spawnTimer += deltaTime;
+            // Spawn des ennemis tant qu'on n'a pas atteint le nombre pour cette vague
+            if (enemiesSpawned < enemiesPerWave && spawnTimer > spawnInterval) {
+                enemies.emplace_back(path);
+                enemiesSpawned++;
+                spawnTimer = 0.f;
+            }
+        }
 
-        // Mise à jour du jeu
-        spawnTimer += deltaTime;
-        if(spawnTimer > 1.0f) {
-            enemies.emplace_back(path);
-            spawnTimer = 0.f;
+        // Quand tous les ennemis de la vague sont morts, passe à la suivante
+        if (waveInProgress && enemiesSpawned == enemiesPerWave && enemies.empty()) {
+            waveInProgress = false;
         }
 
         for(auto& enemy : enemies) {
@@ -125,23 +141,67 @@ GameState drawGameplay(sf::RenderWindow& window) {
 
         // Game Over
         if(playerLives <= 0) {
+            // Création des textes et boutons
             sf::Text gameOverText;
-            if (fontLoaded) {
-                gameOverText.setFont(font);
-            }
-            gameOverText.setString("Game Over!\nRetour au menu dans 3s...");
+            if (fontLoaded) gameOverText.setFont(font);
+            gameOverText.setString("Game Over");
             gameOverText.setCharacterSize(60);
             gameOverText.setFillColor(sf::Color::Red);
-            gameOverText.setPosition(300, 300);
-            
-            window.clear();
-            window.draw(gameOverText);
-            window.display();
-            
-            sf::Clock waitClock;
-            while(waitClock.getElapsedTime().asSeconds() < 3) {}
-            return GameState::MENU; 
+            gameOverText.setPosition(350, 150);
+
+            sf::RectangleShape retryButton(sf::Vector2f(200, 60));
+            retryButton.setPosition(350, 300);
+            retryButton.setFillColor(sf::Color(100, 200, 100));
+
+            sf::Text retryText;
+            if (fontLoaded) retryText.setFont(font);
+            retryText.setString("Retry");
+            retryText.setCharacterSize(30);
+            retryText.setFillColor(sf::Color::Black);
+            retryText.setPosition(390, 310);
+
+            sf::RectangleShape menuButton(sf::Vector2f(200, 60));
+            menuButton.setPosition(350, 400);
+            menuButton.setFillColor(sf::Color(200, 100, 100));
+
+            sf::Text menuText;
+            if (fontLoaded) menuText.setFont(font);
+            menuText.setString("Menu");
+            menuText.setCharacterSize(30);
+            menuText.setFillColor(sf::Color::Black);
+            menuText.setPosition(420, 410);
+
+            // Boucle d'attente de choix utilisateur
+            while (window.isOpen()) {
+                sf::Event event;
+                while (window.pollEvent(event)) {
+                    if (event.type == sf::Event::Closed)
+                        window.close();
+
+                    if (event.type == sf::Event::MouseButtonPressed &&
+                        event.mouseButton.button == sf::Mouse::Left) {
+                        sf::Vector2f mousePos = window.mapPixelToCoords(
+                            {event.mouseButton.x, event.mouseButton.y}
+                        );
+                        if (retryButton.getGlobalBounds().contains(mousePos)) {
+                            return GameState::GAME; // Relance une partie
+                        }
+                        if (menuButton.getGlobalBounds().contains(mousePos)) {
+                            return GameState::MENU; // Retourne au menu
+                        }
+                    }
+                }
+
+                window.clear(sf::Color::Black);
+                window.draw(gameOverText);
+                window.draw(retryButton);
+                window.draw(retryText);
+                window.draw(menuButton);
+                window.draw(menuText);
+                window.display();
+            }
         }
+
 
         // Rendu
         window.clear(sf::Color::White);
@@ -171,6 +231,51 @@ GameState drawGameplay(sf::RenderWindow& window) {
         // UI
         livesText.setString("Vies: " + std::to_string(playerLives));
         window.draw(livesText);
+        // Affichage du numéro de vague
+        sf::Text waveText;
+        if (fontLoaded) waveText.setFont(font);
+        waveText.setString("Vague: " + std::to_string(currentWave) + "/" + std::to_string(maxWaves));
+        waveText.setCharacterSize(24);
+        waveText.setFillColor(sf::Color::Black);
+        waveText.setPosition(10, 40);
+        window.draw(waveText);
+
+        // Gestion du passage à la vague suivante
+        if (!waveInProgress && currentWave < maxWaves) {
+            sf::Text nextWaveText;
+            if (fontLoaded) nextWaveText.setFont(font);
+            nextWaveText.setString("Appuyez sur ESPACE\n pour la prochaine vague");
+            nextWaveText.setCharacterSize(32);
+            nextWaveText.setFillColor(sf::Color::Blue);
+            nextWaveText.setPosition(300, 550);
+            window.draw(nextWaveText);
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                currentWave++;
+                enemiesPerWave += 6;
+                spawnInterval -= 0.1f; 
+                enemiesSpawned = 0;
+                waveInProgress = true;
+                spawnTimer = 0.f;
+                towersAvailable++;
+                
+            }
+        }
+
+        // Fin de la partie après la dernière vague
+        if (!waveInProgress && currentWave == maxWaves && enemies.empty()) {
+            sf::Text victoryText;
+            if (fontLoaded) victoryText.setFont(font);
+            victoryText.setString("Victoire !\nAppuyez sur ECHAP\n pour retourner au menu");
+            victoryText.setCharacterSize(48);
+            victoryText.setFillColor(sf::Color::Green);
+            victoryText.setPosition(300, 500);
+            window.draw(victoryText);
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+                return GameState::MENU;
+            }
+        }
 
         window.display();
     }
