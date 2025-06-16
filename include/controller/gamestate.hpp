@@ -5,5 +5,6 @@ enum class GameState {
     GAME,
     DIFFICULTY,
     SCORE,
-    QUIT
+    QUIT,
+    GAME_OVER
 };

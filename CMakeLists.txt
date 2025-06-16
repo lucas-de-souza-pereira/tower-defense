@@ -12,6 +12,7 @@ add_executable(towerdefense
     src/controller/enemycontroller.cpp
     src/controller/towercontroller.cpp  
 
+    src/model/grid.cpp
     src/model/path.cpp
     src/model/gamelogic.cpp
     src/model/scoreloader.cpp

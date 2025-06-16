@@ -62,6 +62,12 @@ void GameView::processEvents() {
     }
 }
 
+void GameView::renderGameplay() {
+    GameState result = drawGameplay(window);
+    if (result == GameState::MENU) {
+        state = ViewState::MENU;
+    }
+}
 
 void GameView::render() {
     window.clear();
@@ -82,7 +88,7 @@ void GameView::render() {
     window.display();
 }
 
+
 void GameView::renderMenu()      { drawMenu(window); }
 void GameView::renderDifficulty()     { drawDifficulty(window); }
-void GameView::renderGameplay()  { drawGameplay(window); }
 void GameView::renderScore()     { drawScore(window); }

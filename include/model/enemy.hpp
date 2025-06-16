@@ -9,8 +9,13 @@ public:
     sf::Vector2f getPosition() const;
     int getHealth() const;
     bool isAlive() const;
+    bool hasReachedEnd() const;
+    void markForRemoval();
+    bool shouldBeRemoved() const;
     void takeDamage(int dmg);
 private:
+    bool markedForRemoval = false;
+    bool reachedEnd = false;
     std::vector<sf::Vector2f> path;
     int currentPoint;
     sf::Vector2f position;

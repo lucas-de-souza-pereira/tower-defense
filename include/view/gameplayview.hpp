@@ -1,4 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "controller/gamestate.hpp"
 
-void drawGameplay(sf::RenderWindow& window);
+GameState drawGameplay(sf::RenderWindow& window);

@@ -1,4 +1,5 @@
 #include "view/gameview.hpp"
+#include <SFML/Graphics.hpp>
 
 int main() {
     GameView app;
