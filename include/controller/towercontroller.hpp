@@ -24,4 +24,6 @@ public:
     void addTower(const sf::Vector2f& pos);
     void update(float deltaTime, std::vector<Enemy>& enemies);
     const std::vector<Tower>& getTowers() const;
+    void upgradeDamage(int index);
+    int getTowerIndexAtPosition(sf::Vector2f pos);
 };

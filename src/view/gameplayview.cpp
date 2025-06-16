@@ -52,6 +52,11 @@ GameState drawGameplay(sf::RenderWindow& window) {
     float spawnInterval = 1.0f; 
     float spawnTimer = 0.f;
     int towersAvailable = 1;
+    int money = 0;
+    int enemiesKilledThisFrame = 0;
+    int upgradeCost = 50;
+    int selectedTowerIndex = -1;
+
     sf::Vector2f currentTowerPos;
 
     // UI
@@ -61,6 +66,16 @@ GameState drawGameplay(sf::RenderWindow& window) {
         std::cerr << "Erreur de chargement de la police !" << std::endl;
         // On continue quand même, le texte sera affiché sans police personnalisée
     }
+    
+    sf::RectangleShape upgradeButton(sf::Vector2f(150, 40));
+    upgradeButton.setFillColor(sf::Color(100, 200, 250));
+    sf::Text upgradeButtonText;
+    if (fontLoaded) {
+        upgradeButtonText.setFont(font);
+    }
+    upgradeButtonText.setString("Améliorer dégâts (-50)");
+    upgradeButtonText.setCharacterSize(18);
+    upgradeButtonText.setFillColor(sf::Color::Black);
 
     sf::Text livesText;
     if (fontLoaded) {
@@ -75,6 +90,14 @@ GameState drawGameplay(sf::RenderWindow& window) {
     placementPreview.setOutlineThickness(2);
     placementPreview.setOutlineColor(sf::Color::Black);
 
+    sf::Text moneyText;
+    if (fontLoaded) {
+        moneyText.setFont(font);
+    }
+    moneyText.setCharacterSize(24);
+    moneyText.setFillColor(sf::Color::Black);
+    moneyText.setPosition(10, 70);
+
     while(window.isOpen()) {
         float deltaTime = clock.restart().asSeconds();
         sf::Event event;
@@ -83,7 +106,7 @@ GameState drawGameplay(sf::RenderWindow& window) {
         while(window.pollEvent(event)) {
             if(event.type == sf::Event::Closed)
                 window.close();
-            
+
             if(event.type == sf::Event::MouseMoved) {
                 currentTowerPos = grid.snapToGrid(
                     window.mapPixelToCoords(sf::Mouse::getPosition(window))
@@ -95,17 +118,40 @@ GameState drawGameplay(sf::RenderWindow& window) {
                 sf::Vector2f mousePos = window.mapPixelToCoords(
                     {event.mouseButton.x, event.mouseButton.y}
                 );
-                sf::Vector2f snappedPos = grid.snapToGrid(mousePos);
 
+                // 1. Si clique sur bouton upgrade (s’il est visible)
+                if (selectedTowerIndex != -1 &&
+                    upgradeButton.getGlobalBounds().contains(mousePos)) {
+                    if (money >= upgradeCost) {
+                        money -= upgradeCost;
+                        towerController.upgradeDamage(selectedTowerIndex); // méthode à créer
+                        std::cout << "Tour améliorée !" << std::endl;
+                    } else {
+                        std::cout << "Pas assez d'argent !" << std::endl;
+                    }
+                } 
+                // 2. Sinon, clique sur une tour pour la sélectionner
+                else {
+                    selectedTowerIndex = towerController.getTowerIndexAtPosition(mousePos);
+                    if (selectedTowerIndex == -1) {
+                        std::cout << "Aucune tour sélectionnée" << std::endl;
+                    } else {
+                        std::cout << "Tour sélectionnée : " << selectedTowerIndex << std::endl;
+                    }
+                }
+
+                // 3. Si clic sur la grille pour poser une tour (ancien code)
+                sf::Vector2f snappedPos = grid.snapToGrid(mousePos);
                 if (grid.isCellValid(snappedPos) && towersAvailable > 0) {
                     towerController.addTower(snappedPos);
                     grid.occupyCell(snappedPos);
-                    towersAvailable--; 
+                    towersAvailable--;
                 } else if (towersAvailable <= 0) {
                     std::cout << "Plus de tours à poser pour le moment !" << std::endl;
                 }
             }
         }
+
         // Système de vagues
         if (waveInProgress) {
             spawnTimer += deltaTime;
@@ -130,14 +176,46 @@ GameState drawGameplay(sf::RenderWindow& window) {
             }
         }
 
+        // Calculer l'argent gagné avant nettoyage
+        int enemiesKilledThisFrame = 0;
+        for(const auto& enemy : enemies) {
+            if (!enemy.isAlive() && !enemy.shouldBeRemoved()) {
+                enemiesKilledThisFrame++;
+            }
+        }
+        // Ajout de l'argent pour chaque ennemi tué
+        money += enemiesKilledThisFrame * 10;
+
         towerController.update(deltaTime, enemies);
 
         // Nettoyage des ennemis
         enemies.erase(
             std::remove_if(enemies.begin(), enemies.end(),
-                [](const Enemy& e){ return !e.isAlive() || e.shouldBeRemoved(); }),
+                [&](const Enemy& e) {
+                    if (!e.isAlive() || e.shouldBeRemoved()) {
+                        enemiesKilledThisFrame++;
+                        return true;
+                    }
+                    return false;
+                }),
             enemies.end()
         );
+
+        money += enemiesKilledThisFrame * 10;
+
+        if (selectedTowerIndex != -1) {
+            sf::Vector2f towerPos = towerController.getTowers()[selectedTowerIndex].position;
+            upgradeButton.setFillColor(sf::Color(255, 0, 0));
+            upgradeButton.setOutlineThickness(2);
+            upgradeButton.setOutlineColor(sf::Color::Black);
+
+            upgradeButton.setPosition(towerPos.x, towerPos.y);
+            upgradeButtonText.setPosition(towerPos.x, towerPos.y);
+
+            window.draw(upgradeButton);
+            window.draw(upgradeButtonText);
+        }
+
 
         // Game Over
         if(playerLives <= 0) {
@@ -239,6 +317,8 @@ GameState drawGameplay(sf::RenderWindow& window) {
         waveText.setFillColor(sf::Color::Black);
         waveText.setPosition(10, 40);
         window.draw(waveText);
+        moneyText.setString("Argent: " + std::to_string(money));
+        window.draw(moneyText);
 
         // Gestion du passage à la vague suivante
         if (!waveInProgress && currentWave < maxWaves) {
