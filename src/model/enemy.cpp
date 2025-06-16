@@ -39,3 +39,15 @@ void Enemy::takeDamage(int dmg) {
     health -= dmg;
     if (health <= 0) alive = false;
 }
+
+bool Enemy::hasReachedEnd() const {
+    return currentPoint >= path.size() - 1; // Dernier waypoint atteint
+}
+
+void Enemy::markForRemoval() {
+    markedForRemoval = true;
+}
+
+bool Enemy::shouldBeRemoved() const {
+    return markedForRemoval;
+}
